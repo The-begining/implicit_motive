@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -35,6 +35,8 @@ def query_r_model(story):
 async def analyze_story(request: StoryRequest):
     story = request.story
     result = query_r_model(story)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
     return MotiveScores(
         achievement=result["achievement"][0] if isinstance(result["achievement"], list) else result["achievement"],
         affiliation=result["affiliation"][0] if isinstance(result["affiliation"], list) else result["affiliation"],
